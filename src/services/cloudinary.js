@@ -16,6 +16,7 @@ const uploadAssetToCloudinary = async (localFilePath) => {
       resource_type: 'auto',
     })
 
+    // TODO: remove the console.log
     console.log(uploadResult)
 
     logger.capture(
