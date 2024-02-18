@@ -1,6 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary'
+import Logger, { Log } from '../lib/Logger'
 
 import fs from 'fs'
+
+const logger = await Logger()
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -21,9 +24,9 @@ const uploadAssetToCloudinary = async (localFilePath) => {
 
     logger.capture(
       `Asset uploaded: ${uploadResult.public_id}`,
-      'debug',
-      'cloudinary',
-      'success'
+      Log.type.DEBUG,
+      Log.source.CLOUDINARY,
+      Log.severity.SUCCESS
     )
 
     return {
@@ -32,15 +35,20 @@ const uploadAssetToCloudinary = async (localFilePath) => {
       metadata: uploadResult.metadata,
     }
   } catch (error) {
-    logger.capture(`Upload Error | ${error}`, 'error', 'cloudinary', 'error')
+    logger.capture(
+      `Upload Error: ${error}`,
+      Log.type.ERROR,
+      Log.source.CLOUDINARY,
+      Log.severity.ERROR
+    )
 
     fs.unlinkSync(localFilePath) // remove the temporary local file from the server
 
     logger.capture(
       `Local file removed: ${localFilePath}`,
-      'debug',
-      'server',
-      'info'
+      Log.type.DEBUG,
+      Log.source.SERVER,
+      Log.severity.INFO
     )
 
     return null

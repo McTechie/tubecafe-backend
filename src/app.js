@@ -25,12 +25,4 @@ app.use(express.static('public'))
 
 app.use(cookieParser())
 
-app.get('/', (req, res) => {
-  res.send('Hello World')
-})
-
-app.get('/about', (req, res) => {
-  res.send('About')
-})
-
 export { app }

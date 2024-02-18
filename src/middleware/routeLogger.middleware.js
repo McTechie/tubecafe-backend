@@ -1,4 +1,4 @@
-import Logger from '../lib/Logger.js'
+import Logger, { Log } from '../lib/Logger.js'
 
 const logger = new Logger()
 
@@ -6,10 +6,11 @@ export function routeLogger() {
   return (req, res, next) => {
     logger.capture(
       `${req.method} -- ${req.originalUrl}`,
-      'debug',
-      'server',
-      'debug'
+      Log.type.DEBUG,
+      Log.source.SERVER,
+      Log.severity.DEBUG
     )
+
     next()
   }
 }

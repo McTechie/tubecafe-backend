@@ -1,6 +1,35 @@
 import fs from 'fs'
 import path from 'path'
 
+const LogType = {
+  LOG: 'log',
+  ERROR: 'error',
+  WARN: 'warn',
+  INFO: 'info',
+  DEBUG: 'debug',
+}
+
+const LogSource = {
+  SERVER: 'server',
+  DB: 'db',
+  CLOUDINARY: 'cloudinary',
+  STRIPE: 'stripe',
+}
+
+const LogSeverity = {
+  INFO: 'info',
+  SUCCESS: 'success',
+  ERROR: 'error',
+  WARNING: 'warning',
+  DEBUG: 'debug',
+}
+
+export const Log = {
+  type: LogType,
+  source: LogSource,
+  severity: LogSeverity,
+}
+
 class Logger {
   constructor() {
     this.logs = []
@@ -56,9 +85,9 @@ class Logger {
 
   capture(
     message,
-    logType = 'log', // log, error, warn, info, debug
-    source = 'server', // server, db, cloudinary, stripe
-    severity = 'info' // info, success, error, warning, debug
+    logType = Log.type.LOG, // log, error, warn, info, debug
+    source = Log.type.SERVER, // server, db, cloudinary, stripe
+    severity = Log.severity.INFO // info, success, error, warning, debug
   ) {
     const timestamp = new Date().toUTCString()
 

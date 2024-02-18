@@ -1,7 +1,7 @@
 import { DB_NAME } from '../constants.js'
 
 import mongoose from 'mongoose'
-import Logger from '../lib/Logger.js'
+import Logger, { Log } from '../lib/Logger.js'
 
 const logger = new Logger()
 
@@ -10,12 +10,18 @@ async function connectDB() {
     const conn = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
     logger.capture(
       `DB Connected to ${conn.connection.host}`,
-      'info',
-      'db',
-      'success'
+      Log.type.INFO,
+      Log.source.DB,
+      Log.severity.SUCCESS
     )
   } catch (error) {
-    logger.capture(`Connection Error | ${error}`, 'error', 'db', 'error')
+    logger.capture(
+      `Connection Error | ${error}`,
+      Log.type.ERROR,
+      Log.source.DB,
+      Log.severity.ERROR
+    )
+
     process.exit(1)
   }
 }
