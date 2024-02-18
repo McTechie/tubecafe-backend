@@ -40,7 +40,7 @@ class Logger {
   }
 
   createLogDirectory(logPath) {
-    fs.mkdir(logPath, (err) => {
+    fs.mkdirSync(logPath, (err) => {
       if (err) {
         console.error(`
           [${timestamp}] | [LOGGER_ERROR] >> Error creating logs directory: ${err}
@@ -50,7 +50,7 @@ class Logger {
   }
 
   createNewLogFile(logPath, timestamp) {
-    fs.rename(
+    fs.renameSync(
       path.join(logPath, 'server.log'),
       path.join(logPath, `server_${new Date().getTime()}.log`),
       (err) => {
@@ -64,7 +64,7 @@ class Logger {
   }
 
   writeLogToFile(logPath, timestamp, source, severity, message) {
-    fs.appendFile(
+    fs.appendFileSync(
       path.join(logPath, 'server.log'),
       `[${timestamp}] | [${source.toUpperCase()}_${severity.toUpperCase()}] > ${message}\n`,
       (err) => {

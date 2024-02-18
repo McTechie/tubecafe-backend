@@ -14,15 +14,15 @@ app.use(
     credentials: true,
   })
 )
-
 app.use(routeLogger())
-
 app.use(express.json({ limit: JSON_LIMIT }))
-
 app.use(express.urlencoded({ extended: true, limit: URL_LIMIT }))
-
 app.use(express.static('public'))
-
 app.use(cookieParser())
+
+// routes
+import userRouter from './routes/user.routes.js'
+
+app.use('/api/v1/users', userRouter)
 
 export { app }

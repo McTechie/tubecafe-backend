@@ -26,5 +26,10 @@ connectDB()
     })
   })
   .catch((err) => {
-    console.error(err)
+    logger.capture(
+      `Unable to Start Server: ${err.message}`,
+      Log.type.ERROR,
+      Log.source.SERVER,
+      Log.severity.ERROR
+    )
   })
