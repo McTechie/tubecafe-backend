@@ -2,8 +2,11 @@ import { v2 as cloudinary } from 'cloudinary'
 import Logger, { Log } from '../lib/Logger.js'
 
 import fs from 'fs'
+import dotenv from 'dotenv'
 
 const logger = new Logger()
+
+dotenv.config()
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,16 +14,18 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-export const uploadAssetToCloudinary = async (localFilePath) => {
+const uploadAssetToCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null
 
-    const uploadResult = await cloudinary.uploader.upload(localFilePath, {
+    const options = {
       resource_type: 'auto',
-    })
+    }
 
-    // TODO: remove the console.log
-    console.log(uploadResult)
+    const uploadResult = await cloudinary.uploader.upload(
+      localFilePath,
+      options
+    )
 
     logger.capture(
       `Asset uploaded: ${uploadResult.public_id}`,
@@ -36,7 +41,7 @@ export const uploadAssetToCloudinary = async (localFilePath) => {
     }
   } catch (error) {
     logger.capture(
-      `Upload Error: ${error}`,
+      `Upload Error: ${error.message}`,
       Log.type.ERROR,
       Log.source.CLOUDINARY,
       Log.severity.ERROR
@@ -54,3 +59,5 @@ export const uploadAssetToCloudinary = async (localFilePath) => {
     return null
   }
 }
+
+export { uploadAssetToCloudinary }

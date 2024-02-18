@@ -5,7 +5,7 @@ import connectDB from './db/config.js'
 import Logger, { Log } from './lib/Logger.js'
 
 // env variables
-dotenv.config({ path: './.env' })
+dotenv.config()
 
 // port
 const PORT = process.env.PORT || 8000
@@ -25,9 +25,9 @@ connectDB()
       )
     })
   })
-  .catch((err) => {
+  .catch((error) => {
     logger.capture(
-      `Unable to Start Server: ${err.message}`,
+      `Unable to Start Server: ${error.message}`,
       Log.type.ERROR,
       Log.source.SERVER,
       Log.severity.ERROR
