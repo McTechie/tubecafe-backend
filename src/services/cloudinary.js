@@ -1,9 +1,9 @@
 import { v2 as cloudinary } from 'cloudinary'
-import Logger, { Log } from '../lib/Logger'
+import Logger, { Log } from '../lib/Logger.js'
 
 import fs from 'fs'
 
-const logger = await Logger()
+const logger = new Logger()
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-const uploadAssetToCloudinary = async (localFilePath) => {
+export const uploadAssetToCloudinary = async (localFilePath) => {
   try {
     if (!localFilePath) return null
 
