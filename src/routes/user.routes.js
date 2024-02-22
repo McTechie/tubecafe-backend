@@ -2,26 +2,32 @@ import { Router } from 'express'
 import { upload } from '../middleware/multer.middleware.js'
 import { verifyJWT } from '../middleware/auth.middleware.js'
 import {
-  loginUser,
-  logoutUser,
-  registerUser,
-  refreshAccessToken,
+  getUsers,
+  getUserById,
+  updateUserAccount,
+  deleteUserAccount,
+  updateUserCoverImage,
 } from '../controllers/user.controller.js'
 
 const router = Router()
 
-// public routes
-router.route('/register').post(
-  upload.fields([
-    { name: 'avatar', maxCount: 1 },
-    { name: 'coverImage', maxCount: 1 },
-  ]),
-  registerUser
-)
-router.route('/login').post(loginUser)
-
-// secured routes
-router.route('/logout').post(verifyJWT, logoutUser)
-router.route('/refresh-token').post(refreshAccessToken)
+router.route('/').get(verifyJWT, getUsers)
+router.route('/:id').get(verifyJWT, getUserById)
+router.route('/:id').put(verifyJWT, updateUserAccount)
+router.route('/:id').delete(verifyJWT, deleteUserAccount)
+router
+  .route('/update-avatar')
+  .put(
+    verifyJWT,
+    upload.fields([{ name: 'avatar', maxCount: 1 }]),
+    updateUserAvatar
+  )
+router
+  .route('/update-cover-image')
+  .put(
+    verifyJWT,
+    upload.fields([{ name: 'coverImage', maxCount: 1 }]),
+    updateUserCoverImage
+  )
 
 export default router

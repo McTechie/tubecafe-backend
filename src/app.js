@@ -1,9 +1,10 @@
 import { routeLogger } from './middleware/routeLogger.middleware.js'
-import { JSON_LIMIT, URL_LIMIT } from './constants.js'
+import { JSON_LIMIT, URL_LIMIT, PREFIX } from './constants.js'
 
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import authRouter from './routes/auth.routes.js'
 import userRouter from './routes/user.routes.js'
 
 const app = express()
@@ -22,6 +23,7 @@ app.use(express.static('public'))
 app.use(cookieParser())
 
 // routes
-app.use('/api/v1/users', userRouter)
+app.use(`${PREFIX}/auth`, authRouter)
+app.use(`${PREFIX}/users`, userRouter)
 
 export { app }
