@@ -6,6 +6,7 @@ import {
   getUserById,
   updateUserAccount,
   deleteUserAccount,
+  updateUserAvatar,
   updateUserCoverImage,
 } from '../controllers/user.controller.js'
 

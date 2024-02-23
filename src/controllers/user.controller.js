@@ -1,12 +1,21 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadAssetToCloudinary } from '../services/cloudinary.js'
+import { PAGE_LIMIT } from '../constants.js'
 
-import ApiResponse from '../lib/ApiResponse.js'
-import ApiError from '../lib/ApiError.js'
 import User from '../models/user.model.js'
+import ApiError from '../lib/ApiError.js'
+import ApiResponse from '../lib/ApiResponse.js'
+import PaginatedApiResponse from '../lib/PaginatedApiResponse.js'
 
 const getUsers = asyncHandler(async (req, res) => {
-  const users = await User.find({}).select('-password -refreshToken')
+  const page = parseInt(req.query.page) || 0
+  const limit = parseInt(req.query.limit) || PAGE_LIMIT
+
+  const users = await User.find({})
+    .select('-password -refreshToken')
+    .limit(limit)
+    .skip(page * limit)
+    .exec()
 
   if (!users) {
     throw new ApiError(404, 'No users found')
@@ -14,7 +23,15 @@ const getUsers = asyncHandler(async (req, res) => {
 
   res
     .status(200)
-    .json(new ApiResponse(200, 'Users fetched successfully', users))
+    .json(
+      new PaginatedApiResponse(
+        200,
+        'Users fetched successfully',
+        users,
+        page,
+        limit
+      )
+    )
 })
 
 const getUserById = asyncHandler(async (req, res) => {

@@ -34,6 +34,8 @@ const uploadAssetToCloudinary = async (localFilePath) => {
       Log.severity.SUCCESS
     )
 
+    fs.unlinkSync(localFilePath) // remove the temporary local file from the server
+
     return {
       public_id: uploadResult.public_id,
       url: uploadResult.secure_url,
