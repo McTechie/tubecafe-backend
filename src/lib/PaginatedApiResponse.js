@@ -3,10 +3,18 @@ import { PAGE_LIMIT } from '../constants.js'
 import ApiResponse from './ApiResponse.js'
 
 class PaginatedApiResponse extends ApiResponse {
-  constructor(statusCode, message, data, page = 0, limit = PAGE_LIMIT) {
+  constructor(
+    statusCode,
+    message,
+    data,
+    page = 0,
+    totalPages = 1,
+    limit = PAGE_LIMIT
+  ) {
     super(statusCode, message, data)
     this.metadata = {
       page: page, // current page
+      totalPage: totalPages, // total pages
       limit: limit, // items per page
       total: this.calculateTotal(data), // total items
     }

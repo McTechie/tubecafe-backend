@@ -21,6 +21,9 @@ const getUsers = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'No users found')
   }
 
+  const totalUsers = await User.countDocuments()
+  const totalPages = Math.ceil(totalUsers / limit)
+
   res
     .status(200)
     .json(
@@ -29,6 +32,7 @@ const getUsers = asyncHandler(async (req, res) => {
         'Users fetched successfully',
         users,
         page,
+        totalPages,
         limit
       )
     )
