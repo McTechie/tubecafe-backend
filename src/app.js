@@ -6,6 +6,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import authRouter from './routes/auth.routes.js'
 import userRouter from './routes/user.routes.js'
+import channelRouter from './routes/channel.routes.js'
 
 const app = express()
 
@@ -25,5 +26,6 @@ app.use(cookieParser())
 // routes
 app.use(`${PREFIX}/auth`, authRouter)
 app.use(`${PREFIX}/users`, userRouter)
+app.use(`${PREFIX}/channel`, channelRouter)
 
 export { app }
