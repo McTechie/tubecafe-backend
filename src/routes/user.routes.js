@@ -13,9 +13,6 @@ import {
 const router = Router()
 
 router.route('/').get(verifyJWT, getUsers)
-router.route('/:id').get(verifyJWT, getUserById)
-router.route('/:id').put(verifyJWT, updateUserAccount)
-router.route('/:id').delete(verifyJWT, deleteUserAccount)
 router
   .route('/update-avatar')
   .put(
@@ -30,5 +27,8 @@ router
     upload.fields([{ name: 'coverImage', maxCount: 1 }]),
     updateUserCoverImage
   )
+router.route('/:id').get(verifyJWT, getUserById)
+router.route('/:id').put(verifyJWT, updateUserAccount)
+router.route('/:id').delete(verifyJWT, deleteUserAccount)
 
 export default router

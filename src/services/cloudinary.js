@@ -14,12 +14,17 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
-const uploadAssetToCloudinary = async (localFilePath) => {
+const uploadAssetToCloudinary = async (
+  localFilePath,
+  username,
+  uploadClass
+) => {
   try {
     if (!localFilePath) return null
 
     const options = {
       resource_type: 'auto',
+      public_id: `${uploadClass}_${username}`, // avatar_username or cover_image_username
     }
 
     const uploadResult = await cloudinary.uploader.upload(
@@ -62,4 +67,30 @@ const uploadAssetToCloudinary = async (localFilePath) => {
   }
 }
 
-export { uploadAssetToCloudinary }
+const deleteAssetFromCloudinary = async (publicId) => {
+  try {
+    if (!publicId) return null
+
+    const deleteResult = await cloudinary.uploader.destroy(publicId)
+
+    logger.capture(
+      `Asset deleted: ${deleteResult.result}`,
+      Log.type.DEBUG,
+      Log.source.CLOUDINARY,
+      Log.severity.SUCCESS
+    )
+
+    return deleteResult
+  } catch (error) {
+    logger.capture(
+      `Delete Error: ${error.message}`,
+      Log.type.ERROR,
+      Log.source.CLOUDINARY,
+      Log.severity.ERROR
+    )
+
+    return null
+  }
+}
+
+export { uploadAssetToCloudinary, deleteAssetFromCloudinary }

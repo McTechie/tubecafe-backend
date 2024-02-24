@@ -48,9 +48,17 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // upload to cloudinary
-  const avatarCloudinary = await uploadAssetToCloudinary(avatarLocalPath)
+  const avatarCloudinary = await uploadAssetToCloudinary(
+    avatarLocalPath,
+    username,
+    'avatar'
+  )
   const coverImageCloudinary = coverImageLocalPath
-    ? await uploadAssetToCloudinary(coverImageLocalPath)
+    ? await uploadAssetToCloudinary(
+        coverImageLocalPath,
+        username,
+        'cover_image'
+      )
     : null
 
   if (!avatarCloudinary) {

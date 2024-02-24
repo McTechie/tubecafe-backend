@@ -63,8 +63,8 @@ const updateUserAccount = asyncHandler(async (req, res) => {
 
   const { fullName, email } = req.body
 
-  if (!fullName || !email) {
-    throw new ApiError(400, 'Full name and email are required')
+  if (!fullName && !email) {
+    throw new ApiError(400, 'Full name or email is required')
   }
 
   const user = await User.findByIdAndUpdate(
@@ -112,7 +112,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
   }
 
   // upload to cloudinary
-  const newAvatarCloudinary = await uploadAssetToCloudinary(avatarLocalPath)
+  const newAvatarCloudinary = await uploadAssetToCloudinary(
+    avatarLocalPath,
+    req.user.username,
+    'avatar'
+  )
 
   if (!newAvatarCloudinary) {
     throw new ApiError(500, 'Error uploading avatar')
@@ -129,10 +133,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     { new: true }
   ).select('-password -refreshToken')
 
-  if (!user) {
-    throw new ApiError(404, 'User not found')
-  }
-
   res
     .status(200)
     .json(new ApiResponse(200, 'Avatar updated successfully', user))
@@ -147,14 +147,17 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
   }
 
   // upload to cloudinary
-  const newCoverImageCloudinary =
-    await uploadAssetToCloudinary(coverImageLocalPath)
+  const newCoverImageCloudinary = await uploadAssetToCloudinary(
+    coverImageLocalPath,
+    req.user.username,
+    'cover_image'
+  )
 
   if (!newCoverImageCloudinary) {
     throw new ApiError(500, 'Error uploading cover image')
   }
 
-  // update user's avatar
+  // update user's cover image
   const user = await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -164,10 +167,6 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     },
     { new: true }
   ).select('-password -refreshToken')
-
-  if (!user) {
-    throw new ApiError(404, 'User not found')
-  }
 
   res
     .status(200)
