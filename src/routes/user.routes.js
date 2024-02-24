@@ -15,18 +15,10 @@ const router = Router()
 router.route('/').get(verifyJWT, getUsers)
 router
   .route('/update-avatar')
-  .put(
-    verifyJWT,
-    upload.fields([{ name: 'avatar', maxCount: 1 }]),
-    updateUserAvatar
-  )
+  .put(verifyJWT, upload.single('avatar'), updateUserAvatar)
 router
   .route('/update-cover-image')
-  .put(
-    verifyJWT,
-    upload.fields([{ name: 'coverImage', maxCount: 1 }]),
-    updateUserCoverImage
-  )
+  .put(verifyJWT, upload.single('coverImage'), updateUserCoverImage)
 router.route('/:id').get(verifyJWT, getUserById)
 router.route('/:id').put(verifyJWT, updateUserAccount)
 router.route('/:id').delete(verifyJWT, deleteUserAccount)
