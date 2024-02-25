@@ -20,10 +20,10 @@ router.route('/register').post(
   registerUser
 )
 router.route('/login').post(loginUser)
-router.route('/logout').post(verifyJWT, logoutUser) // secured route
+router.route('/logout').post(verifyJWT, logoutUser)
 router.route('/refresh-token').post(refreshAccessToken)
-router.route('/change-password').post(verifyJWT, changePassword) // secured route
+router.route('/change-password').post(verifyJWT, changePassword)
 // TODO: add route to send reset password email if user forgot password
-router.route('/me').get(verifyJWT, getCurrentUser) // secured route
+router.route('/me').get(verifyJWT, getCurrentUser)
 
 export default router

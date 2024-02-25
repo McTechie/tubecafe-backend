@@ -17,6 +17,7 @@ const getChannelProfile = asyncHandler(async (req, res) => {
   // 3. Lookup the subscriptions collection to get the channels the user is subscribed to
   // 4. Add channelSubscribers, subscribedTo, and isSubscribed fields
   // 5. Project the fields to return
+
   const channel = await User.aggregate([
     {
       $match: {

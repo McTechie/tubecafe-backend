@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadAssetToCloudinary } from '../services/cloudinary.js'
 import { PAGE_LIMIT } from '../constants.js'
 
+import mongoose from 'mongoose'
 import User from '../models/user.model.js'
 import ApiError from '../lib/ApiError.js'
 import ApiResponse from '../lib/ApiResponse.js'
@@ -173,6 +174,68 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, 'Cover Image updated successfully', user))
 })
 
+const getWatchHistory = asyncHandler(async (req, res) => {
+  // MongoDB aggregation pipeline to get user's watch history
+  // 1. Match the user
+  // 2. Lookup the videos collection to get the watch history
+  // 3. Sub-pipeline to lookup the users collection to get the owner of the video
+  // 4. Add the owner to the video
+  // 5. Another sub-pipeline to project only the required fields of the owner
+  // 6. Add the owner field to the watch history
+
+  const user = await User.aggregate([
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: 'videos',
+        localField: 'watchHistory',
+        foreignField: '_id',
+        as: 'watchHistory',
+        pipeline: [
+          {
+            $lookup: {
+              from: 'users',
+              localField: 'owner',
+              foreignField: '_id',
+              as: 'owner',
+              pipeline: [
+                {
+                  $project: {
+                    username: 1,
+                    fullName: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $arrayElemAt: ['$owner', 0],
+              },
+            },
+          },
+        ],
+      },
+    },
+  ])
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        'Watch history fetched successfully',
+        user[0].watchHistory
+      )
+    )
+})
+
 export {
   getUsers,
   getUserById,
@@ -180,4 +243,5 @@ export {
   deleteUserAccount,
   updateUserAvatar,
   updateUserCoverImage,
+  getWatchHistory,
 }

@@ -8,6 +8,7 @@ import {
   deleteUserAccount,
   updateUserAvatar,
   updateUserCoverImage,
+  getWatchHistory,
 } from '../controllers/user.controller.js'
 
 const router = Router()
@@ -22,5 +23,6 @@ router
 router.route('/:id').get(verifyJWT, getUserById)
 router.route('/:id').put(verifyJWT, updateUserAccount)
 router.route('/:id').delete(verifyJWT, deleteUserAccount)
+router.route('/:id/watch-history').get(verifyJWT, getWatchHistory)
 
 export default router

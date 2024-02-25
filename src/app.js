@@ -25,7 +25,7 @@ app.use(cookieParser())
 
 // routes
 app.use(`${PREFIX}/auth`, authRouter)
-app.use(`${PREFIX}/users`, userRouter)
-app.use(`${PREFIX}/channel`, channelRouter)
+app.use(`${PREFIX}/u`, userRouter) // u represents user
+app.use(`${PREFIX}/c`, channelRouter) // c represents channel
 
 export { app }
