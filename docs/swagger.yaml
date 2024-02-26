@@ -1,0 +1,64 @@
+swagger: "2.0"
+info:
+  title: TubeCafe's API
+  version: 1.0.0
+  description: The backend app for TubeCafe, a video sharing platform.
+  contact:
+    name: Mcvean Soans (McTechie)
+    url: https://github.com/McTechie
+basePath: /api/v1
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Auth
+  /auth/login:
+    post:
+      tags:
+        - Auth
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+  /auth/refresh-token:
+    post:
+      tags:
+        - Auth
+  /auth/change-password:
+    post:
+      tags:
+        - Auth
+  /auth/me:
+    get:
+      tags:
+        - Auth
+  /c/:username:
+    get:
+      tags:
+        - Channel
+  /u/:
+    get:
+      tags:
+        - User
+  /u/update-avatar:
+    put:
+      tags:
+        - User
+  /u/update-cover-image:
+    put:
+      tags:
+        - User
+  /u/:id:
+    get:
+      tags:
+        - User
+    put:
+      tags:
+        - User
+    delete:
+      tags:
+        - User
+  /u/:id/watch-history:
+    get:
+      tags:
+        - User

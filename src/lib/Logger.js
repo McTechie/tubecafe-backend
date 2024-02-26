@@ -13,6 +13,7 @@ const LogSource = {
   SERVER: 'server',
   DB: 'db',
   CLOUDINARY: 'cloudinary',
+  SWAGGER: 'swagger',
   STRIPE: 'stripe',
 }
 
