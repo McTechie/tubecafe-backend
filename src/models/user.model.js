@@ -24,6 +24,9 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
     },
+    refreshToken: {
+      type: String,
+    },
     fullName: {
       type: String,
       required: [true, 'Full Name is required'],

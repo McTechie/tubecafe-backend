@@ -174,7 +174,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   // this token is encrypted and can only be decrypted by the server
   const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
-  if (!refreshToken) {
+  if (!incomingRefreshToken) {
     throw new ApiError(401, 'Unauthorized')
   }
 
@@ -202,7 +202,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     }
 
     // generate new access token and refresh token
-    const { accessToken, newRefreshToken } =
+    const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshTokens(user._id)
 
     const options = {

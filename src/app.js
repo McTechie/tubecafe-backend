@@ -6,6 +6,7 @@ import fs from 'fs'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
+import rateLimit from 'express-rate-limit'
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yaml'
 
@@ -14,6 +15,18 @@ import userRouter from './routes/user.routes.js'
 import channelRouter from './routes/channel.routes.js'
 
 const app = express()
+
+// docs
+generateSwaggerYAML()
+const yamlDocs = fs.readFileSync('./docs/swagger.yaml', 'utf8')
+const parsedDocs = YAML.parse(yamlDocs)
+
+// rate limiter
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 30, // limit each IP to 30 requests per windowMs
+  message: 'Too many requests from this IP, please try again later',
+})
 
 // middleware
 app.use(
@@ -27,11 +40,7 @@ app.use(express.json({ limit: JSON_LIMIT }))
 app.use(express.urlencoded({ extended: true, limit: URL_LIMIT }))
 app.use(express.static('public'))
 app.use(cookieParser())
-
-// docs
-generateSwaggerYAML()
-const yamlDocs = fs.readFileSync('./docs/swagger.yaml', 'utf8')
-const parsedDocs = YAML.parse(yamlDocs)
+app.use(limiter)
 app.use(
   '/docs',
   swaggerUi.serve,
