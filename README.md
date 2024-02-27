@@ -17,19 +17,15 @@
 
 > TubeCafe is a content sharing platform where users can upload, view and share videos. This repository contains the backend code for the platform.
 
-### Technology Stack
+---
 
-| Usage | Tech |
-| :---: | :---: |
-| Framework | Express.js (Node)  |
-| Language | JavaScript |
-| Database | MongoDB |
-| ORM | Mongoose |
-| Cloud Storage | Cloudinary |
-| Authentication | JWT |
-| Linting | ESLint |
-| Formatting | Prettier |
-| Documentation | Swagger |
+### Key Features
+
+- [x] JWT Authentication
+- [x] MongoDB Aggregations
+- [x] Cloudinary Integration
+- [x] Auto-generating API Docs
+- [x] Custom Server Logs
 
 ---
 
@@ -40,18 +36,23 @@
 
 ---
 
-### Key Features
+### Technology Stack
 
-- [x] JWT Authentication
-- [x] MongoDB Aggregations
-- [x] Cloudinary Integration
-- [x] Auto-generating API Docs
+- **Framework**: Express (Node)
+- **Language**: JavaScript
+- **Database**: MongoDB
+- **ORM**: Mongoose
+- **Cloud Storage**: Cloudinary
+- **Authentication**: JWT
+- **Linting**: ESLint
+- **Formatting**: Prettier
+- **API Documentation**: Swagger
 
 ---
 
 ### Best Practices Followed
 
-- [x] Custom Error Handling
+- [x] Robust Error Handling
 - [x] Generating Server Logs
 - [x] Conventional Commit Messages
 - [x] Comments to help support complex code logic
