@@ -8,6 +8,10 @@ info:
     url: https://github.com/McTechie
 basePath: /api/v1
 paths:
+  /admin/action-logs:
+    get:
+      tags:
+        - Admin
   /auth/register:
     post:
       tags:

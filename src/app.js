@@ -13,6 +13,7 @@ import YAML from 'yaml'
 import authRouter from './routes/auth.routes.js'
 import userRouter from './routes/user.routes.js'
 import channelRouter from './routes/channel.routes.js'
+import adminRouter from './routes/admin.routes.js'
 
 const app = express()
 
@@ -52,6 +53,7 @@ app.use(
 // routes
 app.use(`${PREFIX}/auth`, authRouter)
 app.use(`${PREFIX}/u`, userRouter) // u represents user
-app.use(`${PREFIX}/c`, channelRouter) // c represents channel
+app.use(`${PREFIX}/c`, channelRouter) // c represents
+app.use(`${PREFIX}/admin`, adminRouter)
 
 export { app }

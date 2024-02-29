@@ -49,8 +49,9 @@ const generateSwaggerYAML = () => {
         route.default.stack.forEach((layer) => {
           const method = Object.keys(layer.route.methods)[0]
           const route =
-            (routePath !== '/auth' ? routePath.substring(0, 2) : routePath) +
-            layer.route.path
+            (['/auth', '/admin'].includes(routePath)
+              ? routePath
+              : routePath.substring(0, 2)) + layer.route.path
 
           if (!paths[route]) paths[route] = {}
 

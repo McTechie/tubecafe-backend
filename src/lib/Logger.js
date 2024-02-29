@@ -1,5 +1,8 @@
 import fs from 'fs'
 import path from 'path'
+import ApiError from './ApiError.js'
+import ApiResponse from './ApiResponse.js'
+import ActionLog from '../models/actionLog.model.js'
 
 const LogType = {
   LOG: 'log',
@@ -84,6 +87,16 @@ class Logger {
     )
   }
 
+  writeLogToDB(log) {
+    try {
+      const newLog = new ActionLog(log)
+      newLog.save()
+      return new ApiResponse(201, 'Log written to DB')
+    } catch (error) {
+      return new ApiError(500, 'Error writing log to DB')
+    }
+  }
+
   capture(
     message,
     logType = Log.type.LOG, // log, error, warn, info, debug
@@ -103,6 +116,17 @@ class Logger {
     console[logType](
       `[${timestamp}] | [${source.toUpperCase()}_${severity.toUpperCase()}] >> ${message}`
     )
+
+    // to prevent timeouts, write logs to DB in the background
+    setImmediate(() => {
+      this.writeLogToDB({
+        type: logType,
+        source,
+        severity,
+        message,
+        timestamp,
+      })
+    })
 
     const logPath = path.join(process.cwd(), 'logs')
 
