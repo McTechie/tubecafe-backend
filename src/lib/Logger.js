@@ -118,15 +118,15 @@ class Logger {
     )
 
     // to prevent timeouts, write logs to DB in the background
-    setImmediate(() => {
-      this.writeLogToDB({
-        type: logType,
-        source,
-        severity,
-        message,
-        timestamp,
-      })
-    })
+    // setImmediate(() => {
+    //   this.writeLogToDB({
+    //     type: logType,
+    //     source,
+    //     severity,
+    //     message,
+    //     timestamp,
+    //   })
+    // })
 
     const logPath = path.join(process.cwd(), 'logs')
 
