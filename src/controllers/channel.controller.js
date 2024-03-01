@@ -1,6 +1,8 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
+import { PAGE_LIMIT } from '../constants.js'
 
 import User from '../models/user.model.js'
+import Video from '../models/video.model.js'
 import ApiError from '../lib/ApiError.js'
 import ApiResponse from '../lib/ApiResponse.js'
 
@@ -74,4 +76,82 @@ const getChannelProfile = asyncHandler(async (req, res) => {
     )
 })
 
-export { getChannelProfile }
+const getChannelVideos = asyncHandler(async (req, res) => {
+  const { username } = req.params
+  const { sortBy, sortType, query, page = 1, limit = PAGE_LIMIT } = req.query
+
+  if (!username?.trim()) {
+    throw new ApiError(400, 'Username is required')
+  }
+
+  const channel = await User.findOne({ username: username.toLowerCase() })
+
+  if (!channel) {
+    throw new ApiError(404, 'Channel not found')
+  }
+
+  // MongoDB Aggregation Pipeline
+  // 1. Match videos based on query parameters and channel id
+  // 2. Lookup owner details
+  // 3. Unwind owner details
+  // 4. Project only required fields
+  const aggregateQuery = Video.aggregate([
+    {
+      $match: {
+        $and: [
+          { owner: channel._id },
+          query
+            ? {
+                $or: [
+                  { title: { $regex: query, $options: 'i' } },
+                  { description: { $regex: query, $options: 'i' } },
+                ],
+              }
+            : {},
+          { isPublished: true },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+      },
+    },
+    {
+      $unwind: '$owner',
+    },
+    {
+      $project: {
+        title: 1,
+        description: 1,
+        videoUrl: 1,
+        thumbnail: 1,
+        duration: 1,
+        views: 1,
+        isPublished: 1,
+        owner: {
+          _id: 1,
+          username: 1,
+          avatar: 1,
+        },
+      },
+    },
+  ])
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { [sortBy || 'createdAt']: sortType || 'desc' },
+  }
+
+  const videos = await Video.aggregatePaginate(aggregateQuery, options)
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Fetched videos successfully', videos))
+})
+
+export { getChannelProfile, getChannelVideos }

@@ -40,6 +40,10 @@ paths:
     get:
       tags:
         - Channel
+  /c/:username/videos:
+    get:
+      tags:
+        - Channel
   /u/:
     get:
       tags:
@@ -66,3 +70,19 @@ paths:
     get:
       tags:
         - User
+  /v/:
+    get:
+      tags:
+        - Video
+  /v/upload:
+    post:
+      tags:
+        - Video
+  /v/toggle-publish/:id:
+    put:
+      tags:
+        - Video
+  /v/:id:
+    get:
+      tags:
+        - Video

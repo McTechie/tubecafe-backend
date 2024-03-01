@@ -24,7 +24,8 @@ const uploadAssetToCloudinary = async (
 
     const options = {
       resource_type: 'auto',
-      public_id: `${uploadClass}_${username}`, // avatar_username or cover_image_username
+      public_id:
+        username && uploadClass ? `${uploadClass}_${username}` : undefined,
     }
 
     const uploadResult = await cloudinary.uploader.upload(
@@ -39,12 +40,17 @@ const uploadAssetToCloudinary = async (
       Log.severity.SUCCESS
     )
 
-    fs.unlinkSync(localFilePath) // remove the temporary local file from the server
+    // make sure file exists before unlinking
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath) // remove the temporary local file from the server
+    }
+
+    const { secure_url, public_id, ...metadata } = uploadResult
 
     return {
-      public_id: uploadResult.public_id,
-      url: uploadResult.secure_url,
-      metadata: uploadResult.metadata,
+      url: secure_url,
+      publicId: public_id,
+      metadata,
     }
   } catch (error) {
     logger.capture(
@@ -54,7 +60,10 @@ const uploadAssetToCloudinary = async (
       Log.severity.ERROR
     )
 
-    fs.unlinkSync(localFilePath) // remove the temporary local file from the server
+    // make sure file exists before unlinking
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath) // remove the temporary local file from the server
+    }
 
     logger.capture(
       `Local file removed: ${localFilePath}`,

@@ -103,6 +103,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Avatar is required')
   }
 
+  // verify file format
+  if (!avatarLocalPath.mimetype.startsWith('image')) {
+    throw new ApiError(400, 'Invalid avatar format')
+  }
+
   // upload to cloudinary
   const newAvatarCloudinary = await uploadAssetToCloudinary(
     avatarLocalPath,
@@ -136,6 +141,11 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
   if (!coverImageLocalPath) {
     throw new ApiError(400, 'Avatar is required')
+  }
+
+  // verify file format
+  if (!coverImageLocalPath.mimetype.startsWith('image')) {
+    throw new ApiError(400, 'Invalid cover image format')
   }
 
   // upload to cloudinary

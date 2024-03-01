@@ -47,6 +47,18 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Avatar is required')
   }
 
+  // verify file formats
+  if (!avatarLocalPath.mimetype.startsWith('image')) {
+    throw new ApiError(400, 'Invalid avatar format')
+  }
+
+  if (
+    coverImageLocalPath &&
+    !coverImageLocalPath.mimetype.startsWith('image')
+  ) {
+    throw new ApiError(400, 'Invalid coverImage format')
+  }
+
   // upload to cloudinary
   const avatarCloudinary = await uploadAssetToCloudinary(
     avatarLocalPath,
