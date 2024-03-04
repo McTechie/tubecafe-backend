@@ -97,20 +97,20 @@ const deleteUserAccount = asyncHandler(async (req, res) => {
 
 const updateUserAvatar = asyncHandler(async (req, res) => {
   // get the local path of the uploaded avatar
-  const avatarLocalPath = req.files['avatar']?.[0]?.path
+  const avatarLocal = req.files['avatar']?.[0]
 
-  if (!avatarLocalPath) {
+  if (!avatarLocal?.path) {
     throw new ApiError(400, 'Avatar is required')
   }
 
   // verify file format
-  if (!avatarLocalPath.mimetype.startsWith('image')) {
+  if (!avatarLocal.mimetype.startsWith('image')) {
     throw new ApiError(400, 'Invalid avatar format')
   }
 
   // upload to cloudinary
   const newAvatarCloudinary = await uploadAssetToCloudinary(
-    avatarLocalPath,
+    avatarLocal.path,
     req.user.username,
     'avatar'
   )
@@ -137,20 +137,20 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
 
 const updateUserCoverImage = asyncHandler(async (req, res) => {
   // get the local path of the uploaded avatar
-  const coverImageLocalPath = req.files['coverImage']?.[0]?.path
+  const coverImageLocal = req.files['coverImage']?.[0]
 
-  if (!coverImageLocalPath) {
+  if (!coverImageLocal?.path) {
     throw new ApiError(400, 'Avatar is required')
   }
 
   // verify file format
-  if (!coverImageLocalPath.mimetype.startsWith('image')) {
+  if (!coverImageLocal.mimetype.startsWith('image')) {
     throw new ApiError(400, 'Invalid cover image format')
   }
 
   // upload to cloudinary
   const newCoverImageCloudinary = await uploadAssetToCloudinary(
-    coverImageLocalPath,
+    coverImageLocal.path,
     req.user.username,
     'cover_image'
   )
@@ -176,6 +176,8 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 })
 
 const getWatchHistory = asyncHandler(async (req, res) => {
+  const userId = req.params.id
+
   // MongoDB aggregation pipeline to get user's watch history
   // 1. Match the user
   // 2. Lookup the videos collection to get the watch history
@@ -187,7 +189,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
   const user = await User.aggregate([
     {
       $match: {
-        _id: new mongoose.Types.ObjectId(req.user._id),
+        _id: new mongoose.Types.ObjectId(userId),
       },
     },
     {
@@ -225,6 +227,10 @@ const getWatchHistory = asyncHandler(async (req, res) => {
       },
     },
   ])
+
+  if (!user) {
+    throw new ApiError(404, 'User not found')
+  }
 
   res
     .status(200)

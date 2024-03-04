@@ -40,34 +40,31 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // upload avatar and coverImage to cloudinary
-  const avatarLocalPath = req.files['avatar']?.[0]?.path
-  const coverImageLocalPath = req.files['coverImage']?.[0]?.path
+  const avatarLocal = req.files['avatar']?.[0]
+  const coverImageLocal = req.files['coverImage']?.[0]
 
-  if (!avatarLocalPath) {
+  if (!avatarLocal?.path) {
     throw new ApiError(400, 'Avatar is required')
   }
 
   // verify file formats
-  if (!avatarLocalPath.mimetype.startsWith('image')) {
+  if (!avatarLocal.mimetype.startsWith('image')) {
     throw new ApiError(400, 'Invalid avatar format')
   }
 
-  if (
-    coverImageLocalPath &&
-    !coverImageLocalPath.mimetype.startsWith('image')
-  ) {
+  if (coverImageLocal?.path && !coverImageLocal.mimetype.startsWith('image')) {
     throw new ApiError(400, 'Invalid coverImage format')
   }
 
   // upload to cloudinary
   const avatarCloudinary = await uploadAssetToCloudinary(
-    avatarLocalPath,
+    avatarLocal.path,
     username,
     'avatar'
   )
-  const coverImageCloudinary = coverImageLocalPath
+  const coverImageCloudinary = coverImageLocal
     ? await uploadAssetToCloudinary(
-        coverImageLocalPath,
+        coverImageLocal.path,
         username,
         'cover_image'
       )
@@ -77,7 +74,7 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, 'Error uploading avatar')
   }
 
-  if (coverImageLocalPath && !coverImageCloudinary) {
+  if (coverImageLocal && !coverImageCloudinary) {
     throw new ApiError(500, 'Error uploading coverImage')
   }
 

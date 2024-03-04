@@ -4,6 +4,7 @@ import { uploadAssetToCloudinary } from '../services/cloudinary.js'
 
 import ApiResponse from '../lib/ApiResponse.js'
 import ApiError from '../lib/ApiError.js'
+import User from '../models/user.model.js'
 import Video from '../models/video.model.js'
 
 const getVideos = asyncHandler(async (req, res) => {
@@ -74,6 +75,7 @@ const getVideos = asyncHandler(async (req, res) => {
 
 const getVideoById = asyncHandler(async (req, res) => {
   const { id: _id } = req.params
+  const { incrementView } = req.body
 
   if (!_id) {
     throw new ApiError(400, 'Video ID is required')
@@ -81,12 +83,23 @@ const getVideoById = asyncHandler(async (req, res) => {
 
   const video = await Video.findOneAndUpdate(
     { _id, isPublished: true }, // Find video by id and isPublished
-    { $inc: { views: 1 } }, // Increment views by 1
+    { $inc: { views: incrementView ? 1 : 0 } }, // Increment views by 1, only if it is viewable
     { new: true }
   ).populate('owner', '_id username email')
 
   if (!video) {
     throw new ApiError(404, 'Video not found')
+  }
+
+  // add this video to user's watch history
+  if (incrementView) {
+    const owner = await User.findByIdAndUpdate(req.user._id, {
+      $addToSet: { watchHistory: _id },
+    })
+
+    if (!owner) {
+      throw new ApiError(500, 'Error updating user watch history')
+    }
   }
 
   res
@@ -96,8 +109,6 @@ const getVideoById = asyncHandler(async (req, res) => {
 
 const togglePublishVideo = asyncHandler(async (req, res) => {
   const { id: _id } = req.params
-
-  console.log('works')
 
   if (!_id) {
     throw new ApiError(400, 'Video ID is required')
