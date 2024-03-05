@@ -38,8 +38,8 @@ app.use(
   })
 )
 app.use(routeLogger())
-app.use(express.json({ limit: JSON_LIMIT }))
-app.use(express.urlencoded({ extended: true, limit: URL_LIMIT }))
+app.use(express.json({ limit: JSON_LIMIT })) // for parsing application/json
+app.use(express.urlencoded({ extended: true, limit: URL_LIMIT })) // for parsing application/x-www-form-urlencoded
 app.use(express.static('public'))
 app.use(cookieParser())
 app.use(limiter)

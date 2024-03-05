@@ -63,16 +63,16 @@ const generateSwaggerYAML = () => {
           }
         })
 
-        logger.capture(
-          `Swagger YAML generated successfully.`,
-          Log.type.INFO,
-          Log.source.SWAGGER,
-          Log.severity.INFO
-        )
-
         fs.writeFileSync(
           path.join('docs', 'swagger.yaml'),
           convertToYAML(paths)
+        )
+
+        logger.capture(
+          `Swagger YAML for ${routePath} generated successfully.`,
+          Log.type.INFO,
+          Log.source.SWAGGER,
+          Log.severity.INFO
         )
       })
     }
