@@ -24,6 +24,10 @@ paths:
     post:
       tags:
         - Auth
+  /auth/me:
+    get:
+      tags:
+        - Auth
   /auth/refresh-token:
     post:
       tags:
@@ -32,8 +36,16 @@ paths:
     post:
       tags:
         - Auth
-  /auth/me:
-    get:
+  /auth/forgot-password:
+    post:
+      tags:
+        - Auth
+  /auth/verify-reset-token:
+    post:
+      tags:
+        - Auth
+  /auth/reset-password:
+    post:
       tags:
         - Auth
   /c/:username:

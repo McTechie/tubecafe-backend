@@ -18,6 +18,7 @@ const LogSource = {
   CLOUDINARY: 'cloudinary',
   SWAGGER: 'swagger',
   STRIPE: 'stripe',
+  NODEMAILER: 'nodemailer',
 }
 
 const LogSeverity = {

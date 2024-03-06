@@ -39,3 +39,20 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
     throw new ApiError(401, error?.message || 'Invalid Access Token')
   }
 })
+
+export const verifyEmailExists = asyncHandler(async (req, _, next) => {
+  const { email } = req.body
+
+  if (!email) {
+    throw new ApiError(400, 'Email is required')
+  }
+
+  const user = await User.findOne({ email: email.toLowerCase() })
+
+  if (!user) {
+    throw new ApiError(404, 'User not found')
+  }
+
+  req.user = user
+  next()
+})

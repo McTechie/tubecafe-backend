@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadAssetToCloudinary } from '../services/cloudinary.js'
+import { sendEmail } from '../services/nodemailer.js'
 
 import jwt from 'jsonwebtoken'
 import ApiResponse from '../lib/ApiResponse.js'
@@ -168,7 +169,7 @@ const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     { _id: req.user._id },
     { refreshToken: '' },
-    { new: true } // return updated user document if required
+    { new: true } // return updated user document
   )
 
   res
@@ -176,6 +177,10 @@ const logoutUser = asyncHandler(async (req, res) => {
     .clearCookie('accessToken')
     .clearCookie('refreshToken')
     .json(new ApiResponse(200, 'Logout successful'))
+})
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  res.status(200).json(new ApiResponse(200, 'User details', req.user))
 })
 
 const refreshAccessToken = asyncHandler(async (req, res) => {
@@ -258,15 +263,75 @@ const changePassword = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, 'Password changed successfully'))
 })
 
-const getCurrentUser = asyncHandler(async (req, res) => {
-  res.status(200).json(new ApiResponse(200, 'User details', req.user))
+const forgotPassword = asyncHandler(async (req, res) => {
+  // get user from request object
+  const user = req.user
+
+  // generate reset token
+  const resetToken = user.generateResetPasswordToken()
+
+  // save reset token and expiry date
+  await user.save({ validateBeforeSave: false }) // don't run validation for all fields
+
+  // send email with reset token
+  await sendEmail({
+    email: user.email,
+    subject: 'TubeCafe Account | Password Reset Token',
+    resetToken,
+  })
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Password reset token sent to email'))
+})
+
+const verifyResetToken = asyncHandler(async (req, res) => {
+  const { resetToken } = req.body
+
+  // check if reset token is valid
+  const user = await User.findOne({
+    resetPasswordToken: resetToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  })
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired reset token')
+  }
+
+  res.status(200).json(new ApiResponse(200, 'Reset token verified'))
+})
+
+const resetPassword = asyncHandler(async (req, res) => {
+  const { resetToken, newPassword } = req.body
+
+  // check if reset token is valid
+  const user = await User.findOne({
+    resetPasswordToken: resetToken,
+    resetPasswordExpires: { $gt: Date.now() },
+  })
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired reset token')
+  }
+
+  // update password
+  user.password = newPassword
+  user.resetPasswordToken = undefined
+  user.resetPasswordExpires = undefined
+
+  await user.save({ validateBeforeSave: false }) // don't run validation for all fields
+
+  res.status(200).json(new ApiResponse(200, 'Password reset successful'))
 })
 
 export {
   registerUser,
   loginUser,
   logoutUser,
+  getCurrentUser,
   refreshAccessToken,
   changePassword,
-  getCurrentUser,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 }

@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import crypto from 'crypto'
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2'
 
 const userSchema = new mongoose.Schema(
@@ -25,9 +26,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
     },
-    refreshToken: {
-      type: String,
-    },
     fullName: {
       type: String,
       required: [true, 'Full Name is required'],
@@ -47,6 +45,15 @@ const userSchema = new mongoose.Schema(
         ref: 'Video',
       },
     ],
+    refreshToken: {
+      type: String,
+    },
+    resetPasswordToken: {
+      type: String,
+    },
+    resetPasswordExpire: {
+      type: Date,
+    },
   },
   {
     timestamps: true,
@@ -90,6 +97,21 @@ userSchema.methods.generateRefreshToken = function () {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
     }
   )
+}
+
+userSchema.methods.generateResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(3).toString('hex')
+
+  // encrypt token to prevent it from being easily read
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex') // convert to hexadecimal format
+
+  // set token expire time to 10 minutes
+  this.resetPasswordExpire = Date.now() + 10 * 60 * 1000
+
+  return resetToken
 }
 
 // add pagination plugin

@@ -1,13 +1,16 @@
 import { Router } from 'express'
 import { upload } from '../middleware/multer.middleware.js'
-import { verifyJWT } from '../middleware/auth.middleware.js'
+import { verifyEmailExists, verifyJWT } from '../middleware/auth.middleware.js'
 import {
   loginUser,
   logoutUser,
   registerUser,
+  getCurrentUser,
   refreshAccessToken,
   changePassword,
-  getCurrentUser,
+  forgotPassword,
+  verifyResetToken,
+  resetPassword,
 } from '../controllers/auth.controller.js'
 
 const router = Router()
@@ -21,9 +24,11 @@ router.route('/register').post(
 )
 router.route('/login').post(loginUser)
 router.route('/logout').post(verifyJWT, logoutUser)
+router.route('/me').get(verifyJWT, getCurrentUser)
 router.route('/refresh-token').post(refreshAccessToken)
 router.route('/change-password').post(verifyJWT, changePassword)
-// TODO: add route to send reset password email if user forgot password
-router.route('/me').get(verifyJWT, getCurrentUser)
+router.route('/forgot-password').post(verifyEmailExists, forgotPassword)
+router.route('/verify-reset-token').post(verifyResetToken)
+router.route('/reset-password').post(resetPassword)
 
 export default router
