@@ -1,4 +1,4 @@
-export default function ForgotPasswordTemplate(resetToken) {
+export default function ForgotPasswordTemplate(resetToken, resetURL) {
   return `
   <!doctype html>
 
@@ -1050,7 +1050,8 @@ export default function ForgotPasswordTemplate(resetToken) {
     <v:textbox inset="0px,0px,0px,0px">
     <center style="color:#ffffff; font-family:Tahoma, sans-serif; font-size:16px">
     <![endif]-->
-                                      <div
+                                      <a
+                                        href=${resetURL}
                                         style="
                                           text-decoration: none;
                                           display: inline-block;
@@ -1096,7 +1097,7 @@ export default function ForgotPasswordTemplate(resetToken) {
                                             ><strong>Reset Password</strong></span
                                           ></span
                                         >
-                                      </div>
+                                      </a>
                                       <!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                     </div>
                                   </td>

@@ -1,6 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { uploadAssetToCloudinary } from '../services/cloudinary.js'
-import { sendEmail } from '../services/nodemailer.js'
+import { sendForgotPasswordEmail } from '../services/nodemailer.js'
 
 import jwt from 'jsonwebtoken'
 import ApiResponse from '../lib/ApiResponse.js'
@@ -274,54 +274,49 @@ const forgotPassword = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false }) // don't run validation for all fields
 
   // send email with reset token
-  await sendEmail({
-    email: user.email,
-    subject: 'TubeCafe Account | Password Reset Token',
-    resetToken,
-  })
+  try {
+    await sendForgotPasswordEmail({
+      email: user.email,
+      resetToken,
+      resetURL: `${req.protocol}://${req.get('host')}/reset-password`,
+    })
 
-  res
-    .status(200)
-    .json(new ApiResponse(200, 'Password reset token sent to email'))
-})
+    res
+      .status(200)
+      .json(new ApiResponse(200, 'Password reset token sent to email'))
+  } catch (error) {
+    user.resetPasswordToken = undefined
+    user.resetPasswordExpire = undefined
 
-const verifyResetToken = asyncHandler(async (req, res) => {
-  const { resetToken } = req.body
+    await user.save({ validateBeforeSave: false })
 
-  // check if reset token is valid
-  const user = await User.findOne({
-    resetPasswordToken: resetToken,
-    resetPasswordExpires: { $gt: Date.now() },
-  })
-
-  if (!user) {
-    throw new ApiError(400, 'Invalid or expired reset token')
+    throw new ApiError(500, 'Error sending reset token')
   }
-
-  res.status(200).json(new ApiResponse(200, 'Reset token verified'))
 })
 
 const resetPassword = asyncHandler(async (req, res) => {
-  const { resetToken, newPassword } = req.body
+  const { newPassword } = req.body
 
-  // check if reset token is valid
-  const user = await User.findOne({
-    resetPasswordToken: resetToken,
-    resetPasswordExpires: { $gt: Date.now() },
-  })
-
-  if (!user) {
-    throw new ApiError(400, 'Invalid or expired reset token')
+  if (!newPassword) {
+    throw new ApiError(400, 'New password is required')
   }
+
+  // get user from request object
+  const user = req.user
 
   // update password
   user.password = newPassword
   user.resetPasswordToken = undefined
-  user.resetPasswordExpires = undefined
+  user.resetPasswordExpire = undefined
+  user.refreshToken = ''
 
-  await user.save({ validateBeforeSave: false }) // don't run validation for all fields
+  await user.save({ validateBeforeSave: false })
 
-  res.status(200).json(new ApiResponse(200, 'Password reset successful'))
+  res
+    .status(200)
+    .clearCookie('accessToken')
+    .clearCookie('refreshToken')
+    .json(new ApiResponse(200, 'Password reset successful'))
 })
 
 export {
@@ -332,6 +327,5 @@ export {
   refreshAccessToken,
   changePassword,
   forgotPassword,
-  verifyResetToken,
   resetPassword,
 }

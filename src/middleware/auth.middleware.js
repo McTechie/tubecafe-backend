@@ -1,5 +1,6 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 
+import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import ApiError from '../lib/ApiError.js'
 import User from '../models/user.model.js'
@@ -51,6 +52,26 @@ export const verifyEmailExists = asyncHandler(async (req, _, next) => {
 
   if (!user) {
     throw new ApiError(404, 'User not found')
+  }
+
+  req.user = user
+  next()
+})
+
+export const verifyResetToken = asyncHandler(async (req, _, next) => {
+  const encryptedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex')
+
+  // check if reset token is valid
+  const user = await User.findOne({
+    resetPasswordToken: encryptedToken,
+    resetPasswordExpire: { $gt: Date.now() },
+  })
+
+  if (!user) {
+    throw new ApiError(400, 'Invalid or expired reset token')
   }
 
   req.user = user

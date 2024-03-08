@@ -40,12 +40,8 @@ paths:
     post:
       tags:
         - Auth
-  /auth/verify-reset-token:
-    post:
-      tags:
-        - Auth
-  /auth/reset-password:
-    post:
+  /auth/reset-password/:token:
+    patch:
       tags:
         - Auth
   /c/:username:
