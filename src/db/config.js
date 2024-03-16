@@ -1,5 +1,3 @@
-import { DB_NAME } from '../constants.js'
-
 import mongoose from 'mongoose'
 import Logger, { Log } from '../lib/Logger.js'
 
@@ -7,7 +5,7 @@ const logger = new Logger()
 
 async function connectDB() {
   try {
-    const conn = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
+    const conn = await mongoose.connect(`${process.env.MONGO_URI}`)
     logger.capture(
       `DB Connected to ${conn.connection.host}`,
       Log.type.INFO,
