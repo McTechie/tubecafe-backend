@@ -33,6 +33,6 @@
     "multer": "1.4.5-lts.1",
     "nodemailer": "^6.9.11",
     "swagger-ui-express": "^5.0.0",
-    "yaml": "^2.3.4"
+    "yaml": "^2.4.1"
   }
 }
