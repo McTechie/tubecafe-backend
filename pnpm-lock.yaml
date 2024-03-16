@@ -30,8 +30,8 @@ dependencies:
     specifier: ^9.0.2
     version: 9.0.2
   mongoose:
-    specifier: ^8.1.1
-    version: 8.1.1
+    specifier: ^8.2.2
+    version: 8.2.2
   mongoose-aggregate-paginate-v2:
     specifier: ^1.0.7
     version: 1.0.7
@@ -717,8 +717,8 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: false
 
-  /mongoose@8.1.1:
-    resolution: {integrity: sha512-DbLb0NsiEXmaqLOpEz+AtAsgwhRw6f25gwa1dF5R7jj6lS1D8X6uTdhBSC8GDVtOwe5Tfw2EL7nTn6hiJT3Bgg==}
+  /mongoose@8.2.2:
+    resolution: {integrity: sha512-6sMxe1d3k/dBjiOX4ExNTNOP0g1x0iq8eXyg+ttgIXM3HLnQ0IUyXRwVVAPFFY6O4/8uYN5dB0Ec72FrexbPpw==}
     engines: {node: '>=16.20.1'}
     dependencies:
       bson: 6.3.0
