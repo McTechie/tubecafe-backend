@@ -267,18 +267,17 @@ const forgotPassword = asyncHandler(async (req, res) => {
   // get user from request object
   const user = req.user
 
-  // generate reset token
-  const resetToken = user.generateResetPasswordToken()
-
-  // save reset token and expiry date
-  await user.save({ validateBeforeSave: false }) // don't run validation for all fields
-
-  // send email with reset token
   try {
+    // generate reset token
+    const resetToken = user.generateResetPasswordToken()
+
+    // save reset token and expiry date
+    await user.save({ validateBeforeSave: false })
+
+    // send email with reset token
     await sendForgotPasswordEmail({
       email: user.email,
-      resetToken,
-      resetURL: `${req.protocol}://${req.get('host')}/reset-password`,
+      resetURL: `${req.protocol}://${req.get('host')}/reset-password?token=${resetToken}`,
     })
 
     res

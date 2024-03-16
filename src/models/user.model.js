@@ -100,7 +100,7 @@ userSchema.methods.generateRefreshToken = function () {
 }
 
 userSchema.methods.generateResetPasswordToken = function () {
-  const resetToken = crypto.randomBytes(3).toString('hex')
+  const resetToken = crypto.randomBytes(20).toString('hex')
 
   // encrypt token to prevent it from being easily read
   this.resetPasswordToken = crypto

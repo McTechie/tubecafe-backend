@@ -1,4 +1,4 @@
-import ForgotPasswordTemplate from '../templates/ForgotPassword.js'
+import ForgotPassword2FALinkTemplate from '../templates/ForgotPassword2FALink.js'
 import nodemailer from 'nodemailer'
 
 import Logger, { Log } from '../lib/Logger.js'
@@ -26,13 +26,9 @@ export const sendEmail = async (mailOptions) => {
   }
 }
 
-export const sendForgotPasswordEmail = async ({
-  email,
-  resetToken,
-  resetURL,
-}) => {
+export const sendForgotPasswordEmail = async ({ email, resetURL }) => {
   try {
-    const emailHtml = ForgotPasswordTemplate(resetToken, resetURL)
+    const emailHtml = ForgotPassword2FALinkTemplate(resetURL)
 
     const mailOptions = {
       from: process.env.SMTP_EMAIL,
