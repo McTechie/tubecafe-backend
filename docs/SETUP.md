@@ -1,13 +1,61 @@
 # Setup Guide
 
 > This guide will help you setup TubeCafe Backend on your local machine.
-> 
+>
 > I have used MacOS for the development, so the commands may differ for other operating systems.
 
 <details>
-<summary>Prerequisites</summary>
+<summary> Docker 🐳 </summary>
 
-<br>
+## Prerequisites
+
+### Docker
+
+- [ ] Docker
+  - [Download from here](https://www.docker.com/products/docker-desktop)
+
+### Cloudinary Account
+
+- [ ] Create a Cloudinary Account
+  - [Create an account](https://cloudinary.com/)
+- [ ] Get the Cloudinary API Key, API Secret and Cloud Name (used in the `.env` file)
+
+---
+
+## Installation
+
+1. Clone the repository
+
+> You can also download the repository as a zip file and extract it
+
+```bash
+git clone https://github.com/McTechie/tubecafe-backend
+```
+
+2. Copy the contents of the `.env.example` file into a new `.env` file in the root directory and add the required values.
+
+3. Start the server (Docker Compose)
+
+> If the containers start successfully, the server will start at `http://localhost:8000` by default.
+>
+> If not, make sure the `.env` file is correctly configured.
+
+```bash
+docker-compose up -f docker-compose.yml -d
+```
+
+4. Stop the server
+
+```bash
+docker-compose down
+```
+
+</details>
+
+<details>
+<summary> Bare Metal 🔧 </summary>
+
+## Prerequisites
 
 ### Node.js
 
@@ -29,9 +77,7 @@
 
 - [ ] Create a Cloudinary Account
   - [Create an account](https://cloudinary.com/)
-- [ ] Get the Cloudinary API Key, API Secret and Cloud Name (used later)
-
-</details>
+- [ ] Get the Cloudinary API Key, API Secret and Cloud Name (used in the `.env` file)
 
 ---
 
@@ -65,6 +111,8 @@ pnpm install # or npm install
 ```bash
 pnpm start # or npm start
 ```
+
+</details>
 
 ## API Documentation
 
