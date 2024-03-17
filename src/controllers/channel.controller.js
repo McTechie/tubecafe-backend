@@ -84,6 +84,10 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Username is required')
   }
 
+  if (req.user.username !== username.toLowerCase()) {
+    throw new ApiError(403, 'Unauthorized access to video')
+  }
+
   const channel = await User.findOne({ username: username.toLowerCase() })
 
   if (!channel) {
@@ -108,7 +112,10 @@ const getChannelVideos = asyncHandler(async (req, res) => {
                 ],
               }
             : {},
-          { isPublished: true },
+          {
+            // If the current user is not the owner, only show published videos
+            $or: [{ isPublished: true }, { owner: req.user._id }],
+          },
         ],
       },
     },
@@ -154,4 +161,30 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, 'Fetched videos successfully', videos))
 })
 
-export { getChannelProfile, getChannelVideos }
+const getChannelVideo = asyncHandler(async (req, res) => {
+  const { username, id: videoId } = req.params
+
+  if (!username?.trim() || !videoId?.trim()) {
+    throw new ApiError(400, 'Username and Video ID are required')
+  }
+
+  if (req.user.username !== username.toLowerCase()) {
+    throw new ApiError(403, 'Unauthorized access to video')
+  }
+
+  // only get video if the current user is the owner
+  const video = await Video.findOne({
+    _id: videoId,
+    owner: req.user._id,
+  })
+
+  if (!video) {
+    throw new ApiError(404, 'Video not found')
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Video fetched successfully', video))
+})
+
+export { getChannelProfile, getChannelVideos, getChannelVideo }

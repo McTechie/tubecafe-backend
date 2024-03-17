@@ -129,7 +129,7 @@ const togglePublishVideo = asyncHandler(async (req, res) => {
 
   res
     .status(200)
-    .json(new ApiResponse(200, 'Video published successfully', video))
+    .json(new ApiResponse(200, 'Video toggled successfully', video))
 })
 
 const uploadVideo = asyncHandler(async (req, res) => {
@@ -204,55 +204,60 @@ const updateVideoAsset = asyncHandler(async (req, res) => {
     throw new ApiError(404, 'Video not found')
   }
 
-  const videoFile = req.files['video']?.[0]
-  const thumbnailFile = req.files['thumbnail']?.[0]
+  const newVideoFile = req.files['video']?.[0]
+  const newThumbnailFile = req.files['thumbnail']?.[0]
 
-  if (videoFile?.path) {
+  if (newVideoFile?.path) {
+    // delete existing video
+    const existingVideoUrl = video.videoUrl
+
+    try {
+      await deleteAssetFromCloudinaryByURL(existingVideoUrl, 'video')
+    } catch (error) {
+      throw new ApiError(500, error.message)
+    }
+
     // verify file formats
-    if (!videoFile.mimetype.startsWith('video')) {
+    if (!newVideoFile.mimetype.startsWith('video')) {
       throw new ApiError(400, 'Invalid video format')
     }
 
     // upload to cloudinary
-    const videoCloudinary = await uploadAssetToCloudinary(videoFile.path)
+    const newVideoCloudinary = await uploadAssetToCloudinary(newVideoFile.path)
 
-    if (!videoCloudinary) {
+    if (!newVideoCloudinary) {
       throw new ApiError(500, 'Error uploading video')
     }
 
-    const videoUrl = videoCloudinary.url
-    const duration = videoCloudinary.metadata.duration // in seconds
-
-    // delete existing video
-    const existingVideoUrl = video.videoUrl
-    await deleteAssetFromCloudinaryByURL(existingVideoUrl)
-
-    video.videoUrl = videoUrl
-    video.duration = duration
+    video.videoUrl = newVideoCloudinary.url
+    video.duration = newVideoCloudinary.metadata.duration // in seconds
   }
 
-  if (thumbnailFile?.path) {
+  if (newThumbnailFile?.path) {
+    // delete existing thumbnail
+    const existingThumbnail = video.thumbnail
+
+    try {
+      await deleteAssetFromCloudinaryByURL(existingThumbnail, 'image')
+    } catch (error) {
+      throw new ApiError(500, error.message)
+    }
+
     // verify file formats
-    if (!thumbnailFile.mimetype.startsWith('image')) {
+    if (!newThumbnailFile.mimetype.startsWith('image')) {
       throw new ApiError(400, 'Invalid thumbnail format')
     }
 
     // upload to cloudinary
-    const thumbnailCloudinary = await uploadAssetToCloudinary(
-      thumbnailFile.path
+    const newThumbnailCloudinary = await uploadAssetToCloudinary(
+      newThumbnailFile.path
     )
 
-    if (!thumbnailCloudinary) {
+    if (!newThumbnailCloudinary) {
       throw new ApiError(500, 'Error uploading thumbnail')
     }
 
-    const thumbnail = thumbnailCloudinary.url
-
-    // delete existing thumbnail
-    const existingThumbnail = video.thumbnail
-    await deleteAssetFromCloudinaryByURL(existingThumbnail)
-
-    video.thumbnail = thumbnail
+    video.thumbnail = newThumbnailCloudinary.url
   }
 
   await video.save()
@@ -296,15 +301,21 @@ const deleteVideo = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Video ID is required')
   }
 
-  const video = await Video.findOneAndDelete({ _id })
+  const video = await Video.findOne({ _id })
 
   if (!video) {
     throw new ApiError(404, 'Video not found')
   }
 
   // delete video and thumbnail from cloudinary
-  await deleteAssetFromCloudinaryByURL(video.videoUrl)
-  await deleteAssetFromCloudinaryByURL(video.thumbnail)
+  try {
+    await deleteAssetFromCloudinaryByURL(video.videoUrl, 'video')
+    await deleteAssetFromCloudinaryByURL(video.thumbnail, 'image')
+  } catch (error) {
+    throw new ApiError(500, error.message)
+  }
+
+  await video.remove()
 
   res
     .status(200)

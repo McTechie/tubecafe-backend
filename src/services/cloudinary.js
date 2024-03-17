@@ -76,11 +76,19 @@ const uploadAssetToCloudinary = async (
   }
 }
 
-const deleteAssetFromCloudinary = async (publicId) => {
+const deleteAssetFromCloudinary = async (publicId, resourceType) => {
   try {
-    if (!publicId) return null
+    if (!publicId) {
+      throw new Error('Public ID is required')
+    }
 
-    await cloudinary.uploader.destroy(publicId)
+    const res = await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    })
+
+    if (res.result !== 'ok') {
+      throw new Error(res.result)
+    }
 
     logger.capture(
       `Asset deleted: ${publicId}`,
@@ -88,26 +96,26 @@ const deleteAssetFromCloudinary = async (publicId) => {
       Log.source.CLOUDINARY,
       Log.severity.SUCCESS
     )
-
-    return true
   } catch (error) {
     logger.capture(
-      `Delete Error: ${error.message}`,
+      `Delete Error: ${error.message} | Public ID: ${publicId} | Resource Type: ${resourceType}`,
       Log.type.ERROR,
       Log.source.CLOUDINARY,
       Log.severity.ERROR
     )
 
-    return null
+    throw new Error('Error deleting asset: ' + error.message)
   }
 }
 
-const deleteAssetFromCloudinaryByURL = async (url) => {
-  if (!url) return null
+const deleteAssetFromCloudinaryByURL = async (url, resourceType) => {
+  if (!url) {
+    throw new Error('URL is required')
+  }
 
   const publicId = url.split('/').pop().split('.')[0]
 
-  return deleteAssetFromCloudinary(publicId)
+  await deleteAssetFromCloudinary(publicId, resourceType)
 }
 
 export {
