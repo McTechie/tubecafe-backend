@@ -13,11 +13,12 @@ import Video from '../models/video.model.js'
 const getVideos = asyncHandler(async (req, res) => {
   const { sortBy, sortType, query, page = 1, limit = PAGE_LIMIT } = req.query
 
-  // MongoDB Aggregation Pipeline
+  // MongoDB aggregation pipeline
   // 1. Match videos based on query parameters
   // 2. Lookup owner details
   // 3. Unwind owner details
   // 4. Project only required fields
+
   const aggregateQuery = Video.aggregate([
     {
       $match: {
@@ -134,6 +135,10 @@ const togglePublishVideo = asyncHandler(async (req, res) => {
 
 const uploadVideo = asyncHandler(async (req, res) => {
   const { title, description } = req.body
+
+  if (!title || !description) {
+    throw new ApiError(400, 'Title and description are required')
+  }
 
   // upload avatar and coverImage to cloudinary
   const videoFile = req.files['video']?.[0]

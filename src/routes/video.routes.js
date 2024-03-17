@@ -3,11 +3,11 @@ import { upload } from '../middleware/multer.middleware.js'
 import { verifyJWT } from '../middleware/auth.middleware.js'
 import {
   getVideos,
-  getVideoById,
-  togglePublishVideo,
   uploadVideo,
-  updateVideo,
+  togglePublishVideo,
   updateVideoAsset,
+  getVideoById,
+  updateVideo,
   deleteVideo,
 } from '../controllers/video.controller.js'
 
@@ -22,10 +22,8 @@ router.route('/upload').post(
   ]),
   uploadVideo
 )
-router.route('/toggle-publish/:id').put(verifyJWT, togglePublishVideo)
-router.route('/:id').get(verifyJWT, getVideoById)
-router.route('/:id').patch(verifyJWT, updateVideo)
-router.route('/:id/update-asset').patch(
+router.route('/toggle-publish/:id').patch(verifyJWT, togglePublishVideo)
+router.route('/update-asset/:id').patch(
   verifyJWT,
   upload.fields([
     { name: 'video', maxCount: 1 },
@@ -33,6 +31,8 @@ router.route('/:id/update-asset').patch(
   ]),
   updateVideoAsset
 )
+router.route('/:id').get(verifyJWT, getVideoById)
+router.route('/:id').patch(verifyJWT, updateVideo)
 router.route('/:id').delete(verifyJWT, deleteVideo)
 
 export default router

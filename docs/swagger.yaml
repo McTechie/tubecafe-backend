@@ -56,6 +56,45 @@ paths:
     get:
       tags:
         - Channel
+  /c/:username/playlists:
+    get:
+      tags:
+        - Channel
+  /p/:
+    post:
+      tags:
+        - Playlist
+  /p/add/:id:
+    patch:
+      tags:
+        - Playlist
+  /p/remove/:id:
+    patch:
+      tags:
+        - Playlist
+  /p/reorder/:id:
+    patch:
+      tags:
+        - Playlist
+  /p/toggle-publish/:id:
+    patch:
+      tags:
+        - Playlist
+  /p/update-thumbnail/:id:
+    patch:
+      tags:
+        - Playlist
+  /p/videos/:id:
+    get:
+      tags:
+        - Playlist
+  /p/:id:
+    patch:
+      tags:
+        - Playlist
+    delete:
+      tags:
+        - Playlist
   /u/:
     get:
       tags:
@@ -91,7 +130,11 @@ paths:
       tags:
         - Video
   /v/toggle-publish/:id:
-    put:
+    patch:
+      tags:
+        - Video
+  /v/update-asset/:id:
+    patch:
       tags:
         - Video
   /v/:id:
@@ -102,9 +145,5 @@ paths:
       tags:
         - Video
     delete:
-      tags:
-        - Video
-  /v/:id/update-asset:
-    patch:
       tags:
         - Video

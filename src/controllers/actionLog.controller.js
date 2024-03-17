@@ -22,12 +22,10 @@ const getActionLogs = asyncHandler(async (req, res) => {
     { $sort: { timestamp: -1 } },
   ])
 
-  const options = {
+  const actionLogs = await ActionLog.aggregatePaginate(aggregateQuery, {
     page: parseInt(page, 10),
     limit: parseInt(limit, 10),
-  }
-
-  const actionLogs = await ActionLog.aggregatePaginate(aggregateQuery, options)
+  })
 
   if (!actionLogs) {
     throw new ApiError(404, 'No action logs found')

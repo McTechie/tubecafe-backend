@@ -1,8 +1,10 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { PAGE_LIMIT } from '../constants.js'
 
+import mongoose from 'mongoose'
 import User from '../models/user.model.js'
 import Video from '../models/video.model.js'
+import Playlist from '../models/playlist.model.js'
 import ApiError from '../lib/ApiError.js'
 import ApiResponse from '../lib/ApiResponse.js'
 
@@ -84,10 +86,6 @@ const getChannelVideos = asyncHandler(async (req, res) => {
     throw new ApiError(400, 'Username is required')
   }
 
-  if (req.user.username !== username.toLowerCase()) {
-    throw new ApiError(403, 'Unauthorized access to video')
-  }
-
   const channel = await User.findOne({ username: username.toLowerCase() })
 
   if (!channel) {
@@ -95,15 +93,16 @@ const getChannelVideos = asyncHandler(async (req, res) => {
   }
 
   // MongoDB Aggregation Pipeline
-  // 1. Match videos based on query parameters and channel id
+  // 1. Match videos based on query parameters and channel id (Show only published videos if the current user is not the owner)
   // 2. Lookup owner details
   // 3. Unwind owner details
   // 4. Project only required fields
+
   const aggregateQuery = Video.aggregate([
     {
       $match: {
         $and: [
-          { owner: channel._id },
+          { owner: new mongoose.Types.ObjectId(channel._id) },
           query
             ? {
                 $or: [
@@ -113,8 +112,7 @@ const getChannelVideos = asyncHandler(async (req, res) => {
               }
             : {},
           {
-            // If the current user is not the owner, only show published videos
-            $or: [{ isPublished: true }, { owner: req.user._id }],
+            $or: [{ isPublished: true }, { owner: req.user._id }], // Allow owner to view unpublished videos
           },
         ],
       },
@@ -187,4 +185,87 @@ const getChannelVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, 'Video fetched successfully', video))
 })
 
-export { getChannelProfile, getChannelVideos, getChannelVideo }
+const getChannelPlaylists = asyncHandler(async (req, res) => {
+  const { username } = req.params
+  const { sortBy, sortType, query, page = 1, limit = PAGE_LIMIT } = req.query
+
+  if (!username?.trim()) {
+    throw new ApiError(400, 'Username is required')
+  }
+
+  const channel = await User.findOne({ username: username.toLowerCase() })
+
+  if (!channel) {
+    throw new ApiError(404, 'Channel not found')
+  }
+
+  // MongoDB Aggregation Pipeline
+  // 1. Match playlist based on query parameters and channel id (Show only published playlists if the current user is not the owner)
+  // 2. Lookup owner details
+  // 3. Unwind owner details
+  // 4. Project only required fields
+
+  const aggregateQuery = Playlist.aggregate([
+    {
+      $match: {
+        $and: [
+          { owner: channel._id },
+          query
+            ? {
+                $or: [
+                  { title: { $regex: query, $options: 'i' } },
+                  { description: { $regex: query, $options: 'i' } },
+                ],
+              }
+            : {},
+          {
+            $or: [{ isPublished: true }, { owner: req.user._id }], // Allow owner to view unpublished playlist
+          },
+        ],
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'owner',
+        foreignField: '_id',
+        as: 'owner',
+      },
+    },
+    {
+      $unwind: '$owner',
+    },
+    {
+      $project: {
+        title: 1,
+        description: 1,
+        thumbnail: 1,
+        owner: {
+          _id: 1,
+          username: 1,
+          avatar: 1,
+        },
+        videoCount: { $size: '$videos' },
+      },
+    },
+  ])
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+    sort: { [sortBy || 'createdAt']: sortType || 'desc' },
+  }
+
+  const playlists = await Playlist.aggregatePaginate(aggregateQuery, options)
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Fetched playlists successfully', playlists))
+})
+
+export {
+  getChannelProfile,
+  getChannelVideos,
+  getChannelVideo,
+  getChannelPlaylists,
+}

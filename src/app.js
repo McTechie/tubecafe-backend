@@ -15,6 +15,7 @@ import adminRouter from './routes/admin.routes.js'
 import channelRouter from './routes/channel.routes.js'
 import userRouter from './routes/user.routes.js'
 import videoRouter from './routes/video.routes.js'
+import playlistRouter from './routes/playlist.routes.js'
 
 const app = express()
 
@@ -57,5 +58,6 @@ app.use(`${PREFIX}/admin`, adminRouter)
 app.use(`${PREFIX}/c`, channelRouter) // c represents
 app.use(`${PREFIX}/u`, userRouter) // u represents user
 app.use(`${PREFIX}/v`, videoRouter) // v represents video
+app.use(`${PREFIX}/p`, playlistRouter) // p represents playlist
 
 export { app }
