@@ -80,16 +80,16 @@ const deleteAssetFromCloudinary = async (publicId) => {
   try {
     if (!publicId) return null
 
-    const deleteResult = await cloudinary.uploader.destroy(publicId)
+    await cloudinary.uploader.destroy(publicId)
 
     logger.capture(
-      `Asset deleted: ${deleteResult.result}`,
+      `Asset deleted: ${publicId}`,
       Log.type.DEBUG,
       Log.source.CLOUDINARY,
       Log.severity.SUCCESS
     )
 
-    return deleteResult
+    return true
   } catch (error) {
     logger.capture(
       `Delete Error: ${error.message}`,
@@ -102,4 +102,16 @@ const deleteAssetFromCloudinary = async (publicId) => {
   }
 }
 
-export { uploadAssetToCloudinary, deleteAssetFromCloudinary }
+const deleteAssetFromCloudinaryByURL = async (url) => {
+  if (!url) return null
+
+  const publicId = url.split('/').pop().split('.')[0]
+
+  return deleteAssetFromCloudinary(publicId)
+}
+
+export {
+  uploadAssetToCloudinary,
+  deleteAssetFromCloudinary,
+  deleteAssetFromCloudinaryByURL,
+}

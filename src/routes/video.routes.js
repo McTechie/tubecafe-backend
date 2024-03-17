@@ -6,6 +6,9 @@ import {
   getVideoById,
   togglePublishVideo,
   uploadVideo,
+  updateVideo,
+  updateVideoAsset,
+  deleteVideo,
 } from '../controllers/video.controller.js'
 
 const router = Router()
@@ -21,7 +24,15 @@ router.route('/upload').post(
 )
 router.route('/toggle-publish/:id').put(verifyJWT, togglePublishVideo)
 router.route('/:id').get(verifyJWT, getVideoById)
-// router.route('/:id').delete(verifyJWT, deleteVideo)
-// router.route('/:id').put(verifyJWT, updateVideo)
+router.route('/:id').patch(verifyJWT, updateVideo)
+router.route('/:id/update-asset').patch(
+  verifyJWT,
+  upload.fields([
+    { name: 'video', maxCount: 1 },
+    { name: 'thumbnail', maxCount: 1 },
+  ]),
+  updateVideoAsset
+)
+router.route('/:id').delete(verifyJWT, deleteVideo)
 
 export default router

@@ -1,6 +1,9 @@
 import { asyncHandler } from '../utils/asyncHandler.js'
 import { PAGE_LIMIT } from '../constants.js'
-import { uploadAssetToCloudinary } from '../services/cloudinary.js'
+import {
+  deleteAssetFromCloudinaryByURL,
+  uploadAssetToCloudinary,
+} from '../services/cloudinary.js'
 
 import ApiResponse from '../lib/ApiResponse.js'
 import ApiError from '../lib/ApiError.js'
@@ -116,7 +119,7 @@ const togglePublishVideo = asyncHandler(async (req, res) => {
 
   const video = await Video.findOneAndUpdate(
     { _id },
-    { $set: { isPublished: true } },
+    { $set: { isPublished: req.body.isPublished } },
     { new: true }
   )
 
@@ -188,4 +191,132 @@ const uploadVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, 'Video uploaded successfully', video))
 })
 
-export { getVideos, getVideoById, togglePublishVideo, uploadVideo }
+const updateVideoAsset = asyncHandler(async (req, res) => {
+  const { id: _id } = req.params
+
+  if (!_id) {
+    throw new ApiError(400, 'Video ID is required')
+  }
+
+  const video = await Video.findOne({ _id })
+
+  if (!video) {
+    throw new ApiError(404, 'Video not found')
+  }
+
+  const videoFile = req.files['video']?.[0]
+  const thumbnailFile = req.files['thumbnail']?.[0]
+
+  if (videoFile?.path) {
+    // verify file formats
+    if (!videoFile.mimetype.startsWith('video')) {
+      throw new ApiError(400, 'Invalid video format')
+    }
+
+    // upload to cloudinary
+    const videoCloudinary = await uploadAssetToCloudinary(videoFile.path)
+
+    if (!videoCloudinary) {
+      throw new ApiError(500, 'Error uploading video')
+    }
+
+    const videoUrl = videoCloudinary.url
+    const duration = videoCloudinary.metadata.duration // in seconds
+
+    // delete existing video
+    const existingVideoUrl = video.videoUrl
+    await deleteAssetFromCloudinaryByURL(existingVideoUrl)
+
+    video.videoUrl = videoUrl
+    video.duration = duration
+  }
+
+  if (thumbnailFile?.path) {
+    // verify file formats
+    if (!thumbnailFile.mimetype.startsWith('image')) {
+      throw new ApiError(400, 'Invalid thumbnail format')
+    }
+
+    // upload to cloudinary
+    const thumbnailCloudinary = await uploadAssetToCloudinary(
+      thumbnailFile.path
+    )
+
+    if (!thumbnailCloudinary) {
+      throw new ApiError(500, 'Error uploading thumbnail')
+    }
+
+    const thumbnail = thumbnailCloudinary.url
+
+    // delete existing thumbnail
+    const existingThumbnail = video.thumbnail
+    await deleteAssetFromCloudinaryByURL(existingThumbnail)
+
+    video.thumbnail = thumbnail
+  }
+
+  await video.save()
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Video asset updated successfully', video))
+})
+
+const updateVideo = asyncHandler(async (req, res) => {
+  const { id: _id } = req.params
+  const { title, description } = req.body
+
+  if (!_id) {
+    throw new ApiError(400, 'Video ID is required')
+  }
+
+  if (!title && !description) {
+    throw new ApiError(400, 'Title or description is required')
+  }
+
+  const video = await Video.findOneAndUpdate(
+    { _id },
+    { $set: { title, description } },
+    { new: true }
+  )
+
+  if (!video) {
+    throw new ApiError(404, 'Video not found')
+  }
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Video updated successfully', video))
+})
+
+const deleteVideo = asyncHandler(async (req, res) => {
+  const { id: _id } = req.params
+
+  if (!_id) {
+    throw new ApiError(400, 'Video ID is required')
+  }
+
+  const video = await Video.findOneAndDelete({ _id })
+
+  if (!video) {
+    throw new ApiError(404, 'Video not found')
+  }
+
+  // delete video and thumbnail from cloudinary
+  await deleteAssetFromCloudinaryByURL(video.videoUrl)
+  await deleteAssetFromCloudinaryByURL(video.thumbnail)
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, 'Video deleted successfully', video))
+})
+
+export {
+  getVideos,
+  getVideoById,
+  togglePublishVideo,
+  uploadVideo,
+  updateVideoAsset,
+  updateVideo,
+  deleteVideo,
+}
