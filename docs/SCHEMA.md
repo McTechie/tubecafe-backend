@@ -70,19 +70,10 @@ erDiagram
         Date updatedAt
     }
 
-    posts {
-        ObjectId _id
-        ObjectId owner
-        string content
-        string image
-        Date createdAt
-        Date updatedAt
-    }
-
     users ||--|{ videos : "owns"
     playlists ||--|{ videos : "contains"
     users ||--|{ playlists : "owns"
-    
+
     users ||--|{ subscriptions : "subscribes"
 
     users ||--|{ comments : "comments"
@@ -92,7 +83,4 @@ erDiagram
     users ||--|{ likes : "likes"
     videos ||--|{ likes : "has"
     comments ||--|{ likes : "has"
-    posts ||--|{ likes : "has"
-
-    users ||--|{ posts : "posts"
 ```

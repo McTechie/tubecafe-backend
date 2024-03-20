@@ -4,6 +4,8 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import ApiError from '../lib/ApiError.js'
 import User from '../models/user.model.js'
+import Video from '../models/video.model.js'
+import Comment from '../models/comment.model.js'
 
 export const verifyJWT = asyncHandler(async (req, _, next) => {
   try {
@@ -75,5 +77,29 @@ export const verifyResetToken = asyncHandler(async (req, _, next) => {
   }
 
   req.user = user
+  next()
+})
+
+export const verifyResourceExists = asyncHandler(async (req, _, next) => {
+  const { resourceId } = req.params
+  const { resourceType } = req.body
+
+  if (!resourceId || !resourceType) {
+    throw new ApiError(400, 'resourceId and resourceType are required')
+  }
+
+  if (resourceType !== 'video' && resourceType !== 'comment') {
+    throw new ApiError(400, 'resourceType must be either video or comment')
+  }
+
+  let Model = resourceType === 'video' ? Video : Comment
+
+  const resource = await Model.findById(resourceId)
+
+  if (!resource) {
+    throw new ApiError(404, 'Resource not found')
+  }
+
+  req.resource = resource
   next()
 })

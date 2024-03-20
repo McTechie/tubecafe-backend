@@ -14,10 +14,6 @@ const likeSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Comment',
     },
-    post: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Post',
-    },
   },
   { timestamps: true }
 )
